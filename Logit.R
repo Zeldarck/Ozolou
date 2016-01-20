@@ -179,6 +179,22 @@ for(k in 1:nb_var){
   print(anova(aov(ozone[,var.names[k]]~DepSeuil,data=ozone)))
 }
 #VentANG,SRMH2o,LNO2 et LNO bof
+
+m.qda=qda(DepSeuil~JOUR+MOCAGE+TEMPE+VentMOD,data=ozone)
+predqda=predict(object=m.qda,newdata=ozone.test)
+table(ozone.test$DepSeuil,predqda$class)
+
+m.qda=qda(DepSeuil~MOCAGE+TEMPE+as.factor(STATION)+VentMOD,data=ozone)
+predqda=predict(object=m.qda,newdata=ozone.test)
+table(ozone.test$DepSeuil,predqda$class)
+
+m.qda=qda(DepSeuil~MOCAGE+TEMPE+VentMOD,data=ozone)
+predqda=predict(object=m.qda,newdata=ozone.test)
+table(ozone.test$DepSeuil,predqda$class)
+
 m.qda=qda(DepSeuil~JOUR+MOCAGE+TEMPE+as.factor(STATION)+VentMOD,data=ozone)
 predqda=predict(object=m.qda,newdata=ozone.test)
 table(ozone.test$DepSeuil,predqda$class)
+
+
+#On garde JOUR et STATIONcar c'est mieux (meilleur spécificité ET sensitivité)

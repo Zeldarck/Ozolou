@@ -86,8 +86,8 @@ m.step = step(m.logit1,direction="both")
 #On obtiens ainsi le même modèle que m.logit2
 
 library(pROC)
-test=predict(m.logit2,newdata=ozone.test,type="response")
-plot.roc(ozone.test$DepSeuil,test,legacy.axes=TRUE,print.thres="best",col="blue",auc.polygon=TRUE,print.auc=TRUE)
+test2=predict(m.logit2,newdata=ozone.test,type="response")
+plot.roc(ozone.test$DepSeuil,test2,legacy.axes=TRUE,print.thres="best",col="blue",auc.polygon=TRUE,print.auc=TRUE)
 #Il y a donc un seuil le mieux de mieux 0.213
 
 #Mesure des levier
@@ -96,39 +96,7 @@ ozone$h = hatvalues(m.logit2)
 plot(ozone$h,type="h",ylab=expression(H[ii]),ylim=c(0,.8))
 #p = 10, n = 833
 abline(h=30/833)
-#une valeur très levier =>405
-
-plot(ozone$STDpearson[405]~ozone$DepSeuil[405],ylim=c(-2.5,2.5))
-abline(h=-2,col="green")	
-abline(h=2,col="green")
-
-plot(ozone$STDdeviance[405]~ozone$DepSeuil[405],ylim=c(-2.5,2.5))
-abline(h=-2,col="green")	
-abline(h=2,col="green")
-#On voie que la valeur n'est pas abérante, on la garde donc
-
-#for(i in 1:ncol(ozone$h)){
- # if (ozone$h[i]==0) levier[i]=ozone$h[i]
-#}
-#levier = 
-
-#retrait de la valeur abérante
-#ozone<-ozone[-405,]
-#dim(ozone)
-#m.logit2= glm(DepSeuil~TEMPE+as.factor(STATION)+VentMOD+SRMH2O+LNO2+LNO,data=ozone,family=binomial(link=logit))
-#summary(m.logit2)
-#ozone$h = hatvalues(m.logit2)
-
-#plot(ozone$h,type="h",ylab=expression(H[ii]),ylim=c(0,.8))
-#p = 10, n = 832
-#abline(h=20/832)
-#abline(h=30/832)
-
-#test=predict(m.logit2,newdata=ozone.test,type="response")
-#plot.roc(ozone.test$DepSeuil,test,legacy.axes=TRUE,print.thres="best",col="blue",auc.polygon=TRUE,print.auc=TRUE)
-#Il y a donc un seuil le mieux de mieux 0.210
-
-
+#plusieurs valeurs leviées
 
 #Residus de Pearson
 ozone$pearson = resid(m.logit2,type="pearson")
@@ -139,29 +107,78 @@ ozone$deviance = resid(m.logit2,type="deviance")
 ozone$STDdeviance = ozone$deviance/sqrt(1-ozone$h)
 
 
-
-###sais pas trop quoi faire de ça
-plot(ozone$pearson~ozone$DepSeuil,ylim=c(-2.5,2.5))
+plot(ozone$STDpearson[ozone$h>30/833],ylim=c(-2.5,2.5))
 abline(h=-2,col="green")	
 abline(h=2,col="green")
 
-plot(ozone$STDpearson[405]~ozone$DepSeuil[405],ylim=c(-2.5,2.5))
+plot(ozone$STDdeviance[ozone$h>30/833],ylim=c(-2.5,2.5))
+abline(h=-2,col="green")	
+abline(h=2,col="green")
+#Il ya à une valeur abérante levier selon pearson, nous décidons de la retirée, sont index est 354
+aberantes = 354;
+
+
+#retrait de la valeur abérante
+m.logit4= glm(DepSeuil~TEMPE+as.factor(STATION)+VentMOD+SRMH2O+LNO2+LNO,data=ozone[-aberantes,],family=binomial(link=logit))
+summary(m.logit4)
+ozone.h = hatvalues(m.logit4)
+
+
+#Residus de Pearson
+ozone.pearson = resid(m.logit4,type="pearson")
+ozone.STDpearson = ozone.pearson/sqrt(1-ozone.h)
+
+#Residus de déviance
+ozone.deviance = resid(m.logit4,type="deviance")
+ozone.STDdeviance = ozone.deviance/sqrt(1-ozone.h)
+
+
+plot(ozone.h,type="h",ylab=expression(H[ii]),ylim=c(0,.8))
+#p = 10, n = 832
+abline(h=30/832)
+
+
+plot(ozone.STDpearson[ozone.h>30/832],ylim=c(-2.5,2.5))
 abline(h=-2,col="green")	
 abline(h=2,col="green")
 
-plot(ozone$deviance~ozone$DepSeuil,ylim=c(-2.5,2.5))
+plot(ozone.STDdeviance[ozone.h>30/832],ylim=c(-2.5,2.5))
 abline(h=-2,col="green")	
 abline(h=2,col="green")
 
-plot(ozone$STDdeviance[405]~ozone$DepSeuil[405],ylim=c(-2.5,2.5))
-abline(h=-2,col="green")	
-abline(h=2,col="green")
+##plus de valeur abérante
 
-cook=cooks.distance(m.logit2)
+test4=predict(m.logit4,newdata=ozone.test,type="response")
+plot.roc(ozone.test$DepSeuil,test4,legacy.axes=TRUE,print.thres="best",col="blue",auc.polygon=TRUE,print.auc=TRUE)
+#Il y a donc un seuil le mieux de mieux 0.096
 
+y.test2=as.numeric(test2>0.213)
+y.test4=as.numeric(test2>0.096)
 
+table(obs=ozone.test$DepSeuil,pred=y.test2)
+table(obs=ozone.test$DepSeuil,pred=y.test4)
 
+#S'il n'est pas gravede faire de faux positif, alorsle modèle m.logit4 est plus adaptés, sinon c'est le m.logit2
 
 #LDA
 
 #QDA
+
+library(MASS)
+m.qda=qda(DepSeuil~JOUR+MOCAGE+TEMPE+as.factor(STATION)+VentMOD+VentANG+SRMH2O+LNO2+LNO,data=ozone)
+predqda=predict(object=m.qda,newdata=ozone.test)
+head(predqda$class)
+head(predqda$posterior)
+
+table(ozone.test$DepSeuil,predqda$class)
+
+var.names=c("MOCAGE","TEMPE","VentMOD","VentANG","SRMH2O","LNO2","LNO")
+nb_var = length(var.names)
+for(k in 1:nb_var){
+  print(var.names[k])
+  print(anova(aov(ozone[,var.names[k]]~DepSeuil,data=ozone)))
+}
+#VentANG,SRMH2o,LNO2 et LNO bof
+m.qda=qda(DepSeuil~JOUR+MOCAGE+TEMPE+as.factor(STATION)+VentMOD,data=ozone)
+predqda=predict(object=m.qda,newdata=ozone.test)
+table(ozone.test$DepSeuil,predqda$class)

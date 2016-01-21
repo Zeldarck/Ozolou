@@ -14,7 +14,7 @@
 
 # lecture des données
 
-ozone = read.table("C:/Users/Etienne/Documents/GitHub/Ozolou/ozone.dat",header=TRUE)
+ozone = read.table("C:/Users/User/Documents/GitHub/Ozolou/ozone.dat",header=TRUE)
 attach(ozone)
 
 dim(ozone)
@@ -56,7 +56,6 @@ set.seed(2)
 train = sample(1:1041,833)
 ozone.test = ozone[-train,]
 ozone = ozone[train,]
-dim(ozone)
 
 ################################################
 #brève régression linéaire
@@ -187,10 +186,6 @@ pan=function(x,y){
 pairs(ozone[,2:9],panel=pan)
 
 
-ozone2 = ozone[,-1]
-ozone2 = ozone2[,-4]
-head(ozone2)
-
 ################################################
 #LDA sous hypothèse de normalité
 library(MASS)
@@ -239,7 +234,6 @@ table(ozone.test[,"DepSeuil"],predlda5$class)
 
 #modèle LDA avec les varialbles JOUR, MOCAGE, TEMPE, STATION
 m.lda6=lda(DepSeuil~as.factor(JOUR)+MOCAGE+TEMPE+as.factor(STATION),data=ozone)
-m.lda6
 predlda6=predict(object=m.lda6,newdata=ozone.test)
 table(ozone.test[,"DepSeuil"],predlda6$class)
 #Ce modèle est mieux quand on enlève VentMOD
@@ -281,3 +275,37 @@ predqda=predict(object=m.qda,newdata=ozone.test)
 table(ozone.test$DepSeuil,predqda$class)
 
 #On garde JOUR et STATION car le modèle as une meilleur spécificité ET sensitivité
+
+
+################################################
+#Choix du modèle
+
+#lda
+table(ozone.test$DepSeuil,predqda$class)
+#sensibilité
+23/32
+#spécificité
+160/176
+
+#qda
+table(ozone.test[,"DepSeuil"],predlda6$class)
+#sensibilité
+16/32
+#spécificité
+169/176
+
+#logit2
+table(obs=ozone.test$DepSeuil,pred=y.test2)
+#sensibilité
+28/32
+#spécificité
+150/176
+
+#logit4
+table(obs=ozone.test$DepSeuil,pred=y.test4)
+#sensibilité
+30/32
+#spécificité
+129/176
+  
+#On choisi le m.logit2 qui  maximise au mieux la sensibilité et la spécificité

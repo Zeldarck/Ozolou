@@ -67,7 +67,7 @@ summary(m.linear)
 plot(residuals(m.linear)~fitted(m.linear))
 plot(fitted(m.linear)~ozone$MOCAGE)
 #rég linéaire possible ? R² mauvais
-m.lineair2 = lm(O3obs~MOCAGE+TEMPE+STATION+VentMOD+VentANG+LNO2+LNO,data=ozone)
+m.linear2 = lm(O3obs~MOCAGE+TEMPE+STATION+VentMOD+VentANG+LNO2+LNO,data=ozone)
 summary(m.linear2)
 #après enlever les variables =0 selon le test, on a tj un R² petit, donc modèle pas adapté
 
@@ -167,7 +167,7 @@ plot.roc(ozone.test$DepSeuil,test4,legacy.axes=TRUE,print.thres="best",col="blue
 #Il y a donc un seuil le mieux de mieux 0.096
 
 y.test2=as.numeric(test2>0.213)
-y.test4=as.numeric(test2>0.096)
+y.test4=as.numeric(test4>0.096)
 
 table(obs=ozone.test$DepSeuil,pred=y.test2)
 table(obs=ozone.test$DepSeuil,pred=y.test4)
@@ -183,7 +183,6 @@ pan=function(x,y){
   xy=cbind.data.frame(x,y)
   s.class(xy,ozone$DepSeuil,include.ori=F,add.p=T,clab=1.5,col=c("red","green"),cpoi=2,csta=0.5)
 }
-pairs(ozone[,2:9],panel=pan)
 
 
 ################################################
@@ -280,14 +279,14 @@ table(ozone.test$DepSeuil,predqda$class)
 ################################################
 #Choix du modèle
 
-#lda
+#qda
 table(ozone.test$DepSeuil,predqda$class)
 #sensibilité
 23/32
 #spécificité
 160/176
 
-#qda
+#lda
 table(ozone.test[,"DepSeuil"],predlda6$class)
 #sensibilité
 16/32
@@ -304,8 +303,8 @@ table(obs=ozone.test$DepSeuil,pred=y.test2)
 #logit4
 table(obs=ozone.test$DepSeuil,pred=y.test4)
 #sensibilité
-30/32
+31/32
 #spécificité
-129/176
+130/176
   
 #On choisi le m.logit2 qui  maximise au mieux la sensibilité et la spécificité

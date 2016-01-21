@@ -146,7 +146,7 @@ plot(ozone.STDdeviance[ozone.h>30/832],ylim=c(-2.5,2.5))
 abline(h=-2,col="green")	
 abline(h=2,col="green")
 
-##plus de valeur abérante
+#plus de valeur abérante
 
 test4=predict(m.logit4,newdata=ozone.test,type="response")
 plot.roc(ozone.test$DepSeuil,test4,legacy.axes=TRUE,print.thres="best",col="blue",auc.polygon=TRUE,print.auc=TRUE)
@@ -180,6 +180,7 @@ for(k in 1:nb_var){
 }
 #VentANG,SRMH2o,LNO2 et LNO bof
 
+#Tests sans les variables discretes
 m.qda=qda(DepSeuil~JOUR+MOCAGE+TEMPE+VentMOD,data=ozone)
 predqda=predict(object=m.qda,newdata=ozone.test)
 table(ozone.test$DepSeuil,predqda$class)
@@ -197,4 +198,4 @@ predqda=predict(object=m.qda,newdata=ozone.test)
 table(ozone.test$DepSeuil,predqda$class)
 
 
-#On garde JOUR et STATIONcar c'est mieux (meilleur spécificité ET sensitivité)
+#On garde JOUR et STATION car le modèle as une meilleur spécificité ET sensitivité

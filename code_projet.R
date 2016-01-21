@@ -63,12 +63,12 @@ dim(ozone)
 #Linéaire
 summary(ozone)
 head(ozone)
-m.linear = lm(O3obs~as.factor(JOUR)+MOCAGE+TEMPE+STATION+VentMOD+VentANG+SRMH2O+LNO2+LNO,data=ozone)
+m.linear = lm(O3obs~JOUR+MOCAGE+TEMPE+STATION+VentMOD+VentANG+SRMH2O+LNO2+LNO,data=ozone)
 summary(m.linear)
 plot(residuals(m.linear)~fitted(m.linear))
 plot(fitted(m.linear)~ozone$MOCAGE)
 #rég linéaire possible ? R² mauvais
-m.lineair2 = lm(O3obs~MOCAGE+TEMPE+STATION+VentMOD+VentANG+LNO2+LNO,data=ozone)
+m.linear2 = lm(O3obs~MOCAGE+TEMPE+STATION+VentMOD+VentANG+LNO2+LNO,data=ozone)
 summary(m.linear2)
 #après enlever les variables =0 selon le test, on a tj un R² petit, donc modèle pas adapté
 
@@ -177,25 +177,11 @@ table(obs=ozone.test$DepSeuil,pred=y.test4)
 
 ################################################
 #Classificaion
-head(ozone[1:4])
-head(ozone[,"DepSeuil"])
-par(mar=c(0,0,0,0))
-pan=function(x,y){
-  xy=cbind.data.frame(x,y)
-  s.class(xy,ozone$DepSeuil,include.ori=F,add.p=T,clab=1.5,col=c("red","green"),cpoi=2,csta=0.5)
-}
-pairs(ozone[,2:9],panel=pan)
-
-
-ozone2 = ozone[,-1]
-ozone2 = ozone2[,-4]
-head(ozone2)
-
 ################################################
 #LDA sous hypothèse de normalité
 library(MASS)
 #Modèle lda avec toutes les variables
-m.lda=lda(DepSeuil~as.factor(JOUR)+MOCAGE+TEMPE+as.factor(STATION)+VentMOD+VentANG+SRMH2O+LNO2+LNO,data=ozone)
+m.lda=lda(DepSeuil~JOUR+MOCAGE+TEMPE+as.factor(STATION)+VentMOD+VentANG+SRMH2O+LNO2+LNO,data=ozone)
 m.lda
 predlda=predict(object=m.lda,newdata=ozone.test)
 lda.pred = predict(m.lda)
@@ -212,7 +198,7 @@ for(k in 1:nb_var){
 #On enlève les var : LNO,SRMH2O,VentAng,LNO2
 
 #modèle LDA avec les varialbles JOUR, MOCAGE, TEMPE, STATION, VentMOD
-m.lda2=lda(DepSeuil~as.factor(JOUR)+MOCAGE+TEMPE+as.factor(STATION)+VentMOD,data=ozone)
+m.lda2=lda(DepSeuil~JOUR+MOCAGE+TEMPE+as.factor(STATION)+VentMOD,data=ozone)
 m.lda2
 predlda2=predict(object=m.lda2,newdata=ozone.test)
 table(ozone.test[,"DepSeuil"],predlda2$class)
@@ -224,7 +210,7 @@ predlda3=predict(object=m.lda3,newdata=ozone.test)
 table(ozone.test[,"DepSeuil"],predlda3$class)
 
 #modèle LDA avec les varialbles JOUR, MOCAGE, TEMPE, VentMOD
-m.lda4=lda(DepSeuil~as.factor(JOUR)+MOCAGE+TEMPE+VentMOD,data=ozone)
+m.lda4=lda(DepSeuil~JOUR+MOCAGE+TEMPE+VentMOD,data=ozone)
 m.lda4
 predlda4=predict(object=m.lda4,newdata=ozone.test)
 table(ozone.test[,"DepSeuil"],predlda4$class)
@@ -238,7 +224,7 @@ table(ozone.test[,"DepSeuil"],predlda5$class)
 #On confirme la présence de Station dans le modèle
 
 #modèle LDA avec les varialbles JOUR, MOCAGE, TEMPE, STATION
-m.lda6=lda(DepSeuil~as.factor(JOUR)+MOCAGE+TEMPE+as.factor(STATION),data=ozone)
+m.lda6=lda(DepSeuil~JOUR+MOCAGE+TEMPE+as.factor(STATION),data=ozone)
 m.lda6
 predlda6=predict(object=m.lda6,newdata=ozone.test)
 table(ozone.test[,"DepSeuil"],predlda6$class)
